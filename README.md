@@ -113,3 +113,60 @@ After the compilation, a lot of errors appeared. The include for the drivers wen
 
 ![image](https://user-images.githubusercontent.com/58916022/208954557-9252beed-448d-409a-b5d6-5cc0a23d3857.png)
 
+Some macros were created to auxiliate the coding.
+
+![image](https://user-images.githubusercontent.com/58916022/208963798-8d72b371-e6cd-48de-9c62-376d8224d6d0.png)
+
+Now we are going some macros to auxiliate the reading of the code. Those will be placed in the stm32f401xx.h and are creating according to the bit fields of the SPI registers.
+
+![image](https://user-images.githubusercontent.com/58916022/208970073-a783a446-2857-495e-99ae-dfeefbe516f1.png)
+
+The macros:
+
+![image](https://user-images.githubusercontent.com/58916022/208970554-ad988374-d2dc-4fc0-9ed5-d3303ee9e2b7.png)
+
+The code (in spi_driver.c), with and without the macros:
+
+```
+	// 1. Lets configure the SPI_CR1 register
+	uint32_t tempreg = 0;
+
+	// 1.a. Configure the device mode
+	// NO MACROS: tempreg |= pSPIHandle->SPIConfig.SPI_DeviceMode << 2;
+	tempreg |= pSPIHandle->SPIConfig.SPI_DeviceMode << SPI_CR1_MSTR;
+
+	// 1.b. Configure the bus configuration
+	if(pSPIHandle->SPIConfig.SPI_DeviceMode == SPI_BUS_CONFIG_FD){
+		//Bi-direcional mode should be cleared
+		tempreg &= ~(1 << 15);
+	}else if (pSPIHandle->SPIConfig.SPI_DeviceMode == SPI_BUS_CONFIG_HD){
+		//Bi-direcional mode should be set
+		tempreg |= (1 << 15);
+	}else if (pSPIHandle->SPIConfig.SPI_DeviceMode == SPI_BUS_CONFIG_S_RXONLY){
+		//Bi-direcional mode should be cleared
+		tempreg &= ~(1 << 15);
+		//RX Only bit must be set
+		tempreg |= (1 << 150);
+	}else if (pSPIHandle->SPIConfig.SPI_DeviceMode == SPI_BUS_CONFIG_S_TXONLY){
+
+	}
+	// 1.c. Configure the SPI serial clock speed (baud rate)
+	// NO MACROS: tempreg |= pSPIHandle->SPIConfig.SPI_SclkSpeed << 3;
+	tempreg |= pSPIHandle->SPIConfig.SPI_SclkSpeed << SPI_CR1_BR;
+
+	// 1.d. Configure the DFF
+	// NO MACROS: tempreg |= pSPIHandle->SPIConfig.SPI_DFF << 11;
+	tempreg |= pSPIHandle->SPIConfig.SPI_DFF << SPI_CR1_DFF;
+
+	// 1.e. Configure the CPOL
+	// NO MACROS: tempreg |= pSPIHandle->SPIConfig.SPI_CPOL << 1;
+	tempreg |= pSPIHandle->SPIConfig.SPI_CPOL << SPI_CR1_CPOL;
+
+	// 1.f. Configure the CPHA
+	// NO MACROS: tempreg |= pSPIHandle->SPIConfig.SPI_CPHA << 0;
+	tempreg |= pSPIHandle->SPIConfig.SPI_CPHA << SPI_CR1_CPHA;
+
+	// Send values do SPI_CR1
+	pSPIHandle->pSPIx->CR1 = tempreg;
+```
+The same was created for all the other register's bit fields.
