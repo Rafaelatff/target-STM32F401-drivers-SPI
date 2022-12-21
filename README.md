@@ -19,11 +19,34 @@ We already have add to the stm32f401xx.h file all the addresses for the peripher
 
 In the stm32f401xx.h we need to add the peripheral definitions for SPI (just after the GPIO, RCC, EXTI and SYSCFG peripheral definitions, typecasted to xxx_RegDef_t).
 
-![image](https://user-images.githubusercontent.com/58916022/208925004-d0b87c6b-0190-4a9d-a22f-9506f305a33b.png)
+```
+#define SPI1		((SPI_RegDef_t*)SPI1_BASEADDR)
+#define SPI2		((SPI_RegDef_t*)SPI2_BASEADDR)
+#define SPI3		((SPI_RegDef_t*)SPI3_BASEADDR)
+#define SPI4		((SPI_RegDef_t*)SPI4_BASEADDR)
+```
 
 The clock enable macros were already created, we don't need to do that again. Just to recap:
 
 ![image](https://user-images.githubusercontent.com/58916022/208925922-00635983-2ae9-4eab-9767-ed42668782a0.png)
+
+And we also need to create the SPI_RegDef_t struct. To create this struct we followed the 'Table 93. SPI register map and reset values.
+
+![image](https://user-images.githubusercontent.com/58916022/208932150-7618f4b4-7af5-40d9-bee6-05d022261ee8.png)
+
+```
+typedef struct {
+	volatile uint32_t SPI_CR1; // SPI control register 1 - Address offset: 0x00
+	volatile uint32_t SPI_CR2; // SPI control register 2 - Address offset: 0x04
+	volatile uint32_t SPI_SR; // SPI status register - Address offset: 0x08
+	volatile uint32_t SPI_DR; // SPI data register - Address offset: 0x0C
+	volatile uint32_t SPI_CRCPR; // SPI CRC polynomial register - Address offset: 0x10
+	volatile uint32_t SPI_RXCRCR; // SPI RX CRC register - Address offset: 0x14
+	volatile uint32_t SPI_TXCRCR; // SPI TX CRC register - Address offset: 0x18
+	volatile uint32_t SPI_I2SCFGR; // SPI I2S configuration register - Address offset: 0x1C
+	volatile uint32_t SPI_I2SPR; // SPI I2S prescaler register - Address offset: 0x20
+} SPI_RegDef_t;
+```
 
 Let's them start working on the stm32f401xx_spi_driver.h file by creating the structs for SPI_Config_t and SPI_Handle_t. The code is showed below.
 
@@ -49,3 +72,39 @@ typedef struct{
 	SPI_Config_t SPIConfig/
 } SPI_Handle_t;
 ```
+
+And them we create the SPI prototypes in the .h file.
+
+```
+/*******************************************************
+ * 			API supported by this driver
+ * 			
+ *******************************************************/
+
+/*
+ *  Peripheral Clock Setup
+ */
+void SPI_PeriClkCtrl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
+
+/*
+ *  Init and De-Init
+ */
+void SPI_Init(SPI_Handle_t *pSPIHandle);
+void SPI_DeInit(SPI_RegDef_t *pSPIx);
+
+/*
+ *  Data Send and Receive
+ */
+void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len);
+void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len);
+
+/*
+ *  IRQ Configuration and ISR Handling
+ */
+void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi);
+void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority);
+void SPI_IRQHandling(SPI_Handle_t *pHandle);
+
+```
+
+And in the stm32f401xx_spi_driver.c we copy them to start implementing the APIs.
