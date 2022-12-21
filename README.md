@@ -265,5 +265,25 @@ We need to find the pins MOSI, MISO (not required), SCLK and NSS (not required):
 
 The selected pins are in **bold**.
 
+Note 1: when coding, when the following appear, remember to add the libraries:
+
+![image](https://user-images.githubusercontent.com/58916022/208994142-ffe53526-c730-48e7-8440-436dc82bb18a.png)
+
+Note 2: We add to the Init APIs (libraries) the line to automatically initialize the clock for the GPIO peripheral.
+
+![image](https://user-images.githubusercontent.com/58916022/208996184-e60929c1-2b11-4f4d-b981-5c9bd89d111f.png)
+
+And the same for SPI init peripheral clock.
+
+![image](https://user-images.githubusercontent.com/58916022/208996412-647fcd80-7e4b-43cb-8b19-621dbd01bb01.png)
+
+
+## testing
+
+Logic analyzer must be connected to a USB 3.0 or the software may not collect all the samples properly.
+
+PAREI 150 (testar com osc)
+
+
 
 
