@@ -1,6 +1,57 @@
 # target-STM32F401-drivers-SPI
 This project uses STM32CubeIDE and it's a program created to practice my C habilities during the course 'Mastering Microcontroller and Embedded Driver Development' from FastBit Embedded Brain Academy. I am using a NUCLEO-F401RE board.
 
+## general info about SPI
+
+**Board connection - SPI, I2C.** / Equipment connection (car, machine) - CAN, Ethernet, RS232, RS485.
+
+
+SPI -> working with shift register 
+	MOSI - Master Out Slave In
+	MISO - Master In Slave Out
+
+By default -> Full-Duplex 
+
+Can be Half-Duplex [MOSI - 1kOhm - MISO], both communicate
+
+Can be Simples - MOSI always in transmit mode e Slave in receive mode OR
+
+MISO and MISO connected, for Slave in transceive mode 
+
+to config SPI: NSS = output = master configuration
+
+NSS = input = it can be multi-master or slave
+
+NSS can be configured by hw (directly connected to ground)
+
+or sw (SSI bit of SPIx_CR1 register for STM32 as slave)
+
+
+CPHA - SCLK Phase (controls which clock edge of data should be sampled by slave)
+
+	CPHA in 1 = trailing edge (2nd edge)
+	
+	CPHA in 0 = leading edge (1st edge)
+	
+	
+CPOL - SCLK Polarity (controls the idle state value of clock)
+
+	CPOL in reset = low-level idle state (no comm)
+	
+	CPOL in set = high-level idle state
+	
+DFF - Data Frame Format
+
+
+CPHA e CPOL together selects the data capture clock edge
+
+Driver da SPI - APIS de:
+* SPI initialization and peripheral clock control
+* SPI TX
+* SPI RX
+* SPI Interrupt config. & Handling
+* Others
+
 ## drivers library creation
 
 Create the header and source files for SPI driver.
@@ -169,4 +220,50 @@ The code (in spi_driver.c), with and without the macros:
 	// Send values do SPI_CR1
 	pSPIHandle->pSPIx->CR1 = tempreg;
 ```
-The same was created for all the other register's bit fields.
+The same was created for all the other register's bit fields and MUST BE CREATED FOR THE SPI_CR2 REGISTER.
+
+To create the function SPI_SendData we will follow the 'Figure 192. SPI block diagram' of RM0368 document. 
+
+![image](https://user-images.githubusercontent.com/58916022/208975131-edc31c99-0e5d-46e8-8257-902e09d46a5b.png)
+
+SPI_DR (Data Register) holds the value of data register (both transmitter and receiver). Firmware doesn't have directly access to RX and TX registers.
+
+![image](https://user-images.githubusercontent.com/58916022/208975984-3718e7a4-7c3e-4bc6-9965-466c80c487b6.png)
+
+
+## Let's test the APIs
+
+For this exercise we are going to:
+
+1 - Test the SPI_SendData API to send the string "Hello world":
+
+2 - Using SPI2 Master mode
+
+3 - Using SCLK max possible
+
+4.a. - Using DFF = 0
+
+4.b. - Using DFF = 1
+
+Using 'Table 9. Alternate function mapping' from stm32f401re datasheet, we can find the SPI2 pins. They are allocated only in AF05 or AF06 (actually we only found AF allocated in AF05).
+
+![image](https://user-images.githubusercontent.com/58916022/208984547-1d82e9e2-5e95-4958-9015-8601688a6b2b.png)
+
+We need to find the pins MOSI, MISO (not required), SCLK and NSS (not required): 
+
+| Pin | MOSI | MISO | SCLK | NSS | 
+| :---: | :---: | :---: | :---: | :---: |
+| PB9 | x | x | x | SPI2_NSS (AF05) |
+| PB10 | x | x | SPI2_SCK (AF05) | x |
+| PB12 | x | x | x | **SPI2_NSS (AF05)** |
+| PB13 | x | x | **SPI2_SCK (AF05)** | x |
+| PB14 | x | **SPI2_MISO (AF05)** | x | x |
+| PB15 | **SPI2_MOSI (AF05)** | x | x | x |
+| PC2 | x | SPI2_MISO (AF05) | x | x |
+| PC3 | SPI2_MOSI (AF05) | x | x | x |
+| PD3 | x | x | SPI2_SCK (AF05) | x |
+
+The selected pins are in **bold**.
+
+
+
