@@ -108,3 +108,8 @@ void SPI_IRQHandling(SPI_Handle_t *pHandle);
 ```
 
 And in the stm32f401xx_spi_driver.c we copy them to start implementing the APIs.
+
+After the compilation, a lot of errors appeared. The include for the drivers went moved to the bottom of the stm32f401xx.h file.
+
+![image](https://user-images.githubusercontent.com/58916022/208954557-9252beed-448d-409a-b5d6-5cc0a23d3857.png)
+
