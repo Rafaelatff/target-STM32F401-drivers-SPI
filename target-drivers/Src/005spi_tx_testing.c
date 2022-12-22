@@ -21,7 +21,7 @@
 #include "stm32f401xx.h"
 
 void SPI_GPIOInits(void);
-void SPI_Inits(void);
+void SPI2_Inits(void);
 
 
 int main (void){
@@ -30,14 +30,15 @@ int main (void){
 
 	SPI_GPIOInits(); //Initialize GPIO pins to behave as SPI2 pins
 
-	SPI_Inits(); //Initialize the SPI2 peripheral parameters
+	SPI2_Inits(); //Initialize the SPI2 peripheral parameters
+
+	// Investigate: Error since SSI ins't configured (to avoid MODF error)
+	SPI_SSIConfig(SPI2,ENABLE);
 
 	// Enable the SPI2 peripheral
 	SPI_PeripheralControl(SPI2,ENABLE);
 
-	SPI_SendData(SPI2,(uint8_t*)user_data,strlen(user_data));
-
-	while (1);
+	while (1) { SPI_SendData(SPI2,(uint8_t*)user_data,strlen(user_data)); }
 }
 
 void SPI_GPIOInits(void){
@@ -59,16 +60,16 @@ void SPI_GPIOInits(void){
 	GPIO_Init(&SPIPins);
 
 	//PB14 --> MISO --> not used, can be commented
-	SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_14;
-	GPIO_Init(&SPIPins);
+	//SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_14;
+	//GPIO_Init(&SPIPins);
 
 	//PB12 --> NSS --> not used, can be commented
-	SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_12;
-	GPIO_Init(&SPIPins);
+	//SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_12;
+	//GPIO_Init(&SPIPins);
 
 }
 
-void SPI_Inits(void){
+void SPI2_Inits(void){
 	SPI_Handle_t SPI2Handle;
 
 	SPI2Handle.pSPIx = SPI2;
@@ -79,4 +80,6 @@ void SPI_Inits(void){
 	SPI2Handle.SPIConfig.SPI_CPOL = SPI_CPOL_LOW;
 	SPI2Handle.SPIConfig.SPI_CPHA = SPI_CPHA_LOW;
 	SPI2Handle.SPIConfig.SPI_SSM = SPI_SSM_EN; // sw slave management en for NSS pin
+
+	SPI_Init(&SPI2Handle);
 }
