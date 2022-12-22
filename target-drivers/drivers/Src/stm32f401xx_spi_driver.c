@@ -66,15 +66,15 @@ void SPI_Init(SPI_Handle_t *pSPIHandle){
 	// 1.b. Configure the bus configuration
 	if(pSPIHandle->SPIConfig.SPI_DeviceMode == SPI_BUS_CONFIG_FD){
 		//Bi-direcional mode should be cleared
-		tempreg &= ~(1 << 15);
+		//tempreg &= ~(SPI_CR1_BIDIMODE);
 	}else if (pSPIHandle->SPIConfig.SPI_DeviceMode == SPI_BUS_CONFIG_HD){
 		//Bi-direcional mode should be set
-		tempreg |= (1 << 15);
+		tempreg |= (SPI_CR1_BIDIMODE);
 	}else if (pSPIHandle->SPIConfig.SPI_DeviceMode == SPI_BUS_CONFIG_S_RXONLY){
 		//Bi-direcional mode should be cleared
-		tempreg &= ~(1 << 15);
+		tempreg &= ~(SPI_CR1_BIDIMODE);
 		//RX Only bit must be set
-		tempreg |= (1 << 150);
+		tempreg |= (SPI_CR1_RXONLY);
 	}else if (pSPIHandle->SPIConfig.SPI_DeviceMode == SPI_BUS_CONFIG_S_TXONLY){
 
 	}
@@ -93,6 +93,9 @@ void SPI_Init(SPI_Handle_t *pSPIHandle){
 	// 1.f. Configure the CPHA
 	// NO MACROS: tempreg |= pSPIHandle->SPIConfig.SPI_CPHA << 0;
 	tempreg |= pSPIHandle->SPIConfig.SPI_CPHA << SPI_CR1_CPHA;
+
+	// 1.g. Configure the SSM
+	tempreg |= pSPIHandle->SPIConfig.SPI_SSM << SPI_CR1_SSM;
 
 	// Send values do SPI_CR1
 	pSPIHandle->pSPIx->CR1 = tempreg;
@@ -186,5 +189,12 @@ void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi){
 	}else{
 		pSPIx->CR1 &= ~(1 << SPI_CR1_SPE);
 	}
+}
 
+void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t EnOrDi){
+	if(EnOrDi == ENABLE){
+		pSPIx->CR1 |= (1 << SPI_CR1_SSI);
+	}else{
+		pSPIx->CR1 &= ~(1 << SPI_CR1_SSI);
+	}
 }
