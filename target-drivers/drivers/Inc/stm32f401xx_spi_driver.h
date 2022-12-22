@@ -11,7 +11,7 @@
 #include "stm32f401xx.h"
 
 /*
- * Configuration structures for SPIx peripheral
+ * Configuration structure for SPIx peripheral
  */
 typedef struct{
 	uint8_t SPI_DeviceMode;
@@ -22,6 +22,24 @@ typedef struct{
 	uint8_t SPI_CPHA;
 	uint8_t SPI_SSM;
 } SPI_Config_t;
+
+/*typedef struct{
+	uint8_t SPI_CPHA; //Clock phase
+	uint8_t SPI_CPOL; //Clock polarity
+	uint8_t SPI_DeviceMode; //Master selection
+	uint8_t SPI_BusConfig[2]; //Baud rate control
+	uint8_t SPI_SPE; //SPI enable
+	uint8_t SPI_LSBFIRST; //Frame format
+	uint8_t SPI_SSI; //Internal slave select
+	uint8_t SPI_SSM; //Software slave management
+	uint8_t SPI_RXONLY; //Receive only
+	uint8_t SPI_DFF; //Data frame format
+	uint8_t SPI_CRCNEXT; //CRC transfer next
+	uint8_t SPI_CRCEN; //Hardware CRC calculation enable
+	uint8_t SPI_BIDIOE; //Output enable in bidirectional mode
+	uint8_t SPI_BIDIMODE; //Bidirectional data mode enable
+
+} SPI_Config_t;*/
 
 
 typedef struct{
@@ -104,5 +122,6 @@ void SPI_IRQHandling(SPI_Handle_t *pHandle);
  * 	Other Peripheral Control APIs
  */
 void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
+void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
 
 #endif /* INC_STM32F401XX_SPI_DRIVER_H_ */
