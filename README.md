@@ -7,24 +7,14 @@ This project uses STM32CubeIDE and it's a program created to practice my C habil
 
 
 SPI -> working with shift register 
+
 	MOSI - Master Out Slave In
+	
 	MISO - Master In Slave Out
 
-By default -> Full-Duplex 
-
-Can be Half-Duplex [MOSI - 1kOhm - MISO], both communicate
-
-Can be Simples - MOSI always in transmit mode e Slave in receive mode OR
-
-MISO and MISO connected, for Slave in transceive mode 
-
-to config SPI: NSS = output = master configuration
-
-NSS = input = it can be multi-master or slave
-
-NSS can be configured by hw (directly connected to ground)
-
-or sw (SSI bit of SPIx_CR1 register for STM32 as slave)
+By default -> Full-Duplex, can be Half-Duplex [MOSI - 1kOhm - MISO], both communicate. Can be Simples - MOSI always in transmit mode e Slave in receive mode OR 
+MISO and MISO connected, for Slave in transceive mode. To config SPI: NSS = output = master configuration. NSS = input = it can be multi-master or slave. 
+NSS can be configured by hw (directly connected to ground) or sw (SSI bit of SPIx_CR1 register for STM32 as slave).
 
 
 CPHA - SCLK Phase (controls which clock edge of data should be sampled by slave)
@@ -283,6 +273,47 @@ And the same for SPI init peripheral clock.
 Logic analyzer must be connected to a USB 3.0 or the software may not collect all the samples properly.
 
 PAREI 150 (testar com osc)
+
+## debugging
+
+The struct SPI2Handle is ok.
+
+![image](https://user-images.githubusercontent.com/58916022/209125735-2c19439e-1e22-4d76-a8df-da414fd955da.png)
+
+Clock for peripheral is ok.
+
+![image](https://user-images.githubusercontent.com/58916022/209126462-66641023-6da1-4975-a127-47e138ae1814.png)
+
+Something is happening with my 'tempreg' variable after the line 69 is executed: tempreg &= ~(SPI_CR1_BIDIMODE);
+
+![image](https://user-images.githubusercontent.com/58916022/209127672-7ae1ad44-4380-4209-ba7f-3fc4694fb411.png)
+
+Checking bit field we can se it is ok: #define SPI_CR1_BIDIMODE	15	//bit field for Bidirectional data mode enable 
+
+I commented the line 69 and SPI remained in MASTER mode. Lets check the register after 98 line (pSPIHandle->pSPIx->CR1 = tempreg;):
+
+![image](https://user-images.githubusercontent.com/58916022/209129414-b317dc4e-1d0b-4fc5-8682-cfd15bbcdb5e.png)
+
+Now it should work!! Still no:
+
+Solution, thanks to the help of my teammate França, the SSM configuration was missing.
+
+![image](https://user-images.githubusercontent.com/58916022/209142532-397cde82-6710-4e0b-ae36-dc34d7bb50b0.png)
+
+Here it was ok (already implemented):
+
+![image](https://user-images.githubusercontent.com/58916022/209142724-f2993de6-946c-45a8-8430-80182cae0d25.png)
+
+But in the .c library it was missing the config:
+
+![image](https://user-images.githubusercontent.com/58916022/209142923-43d20718-78ef-46ab-88b7-12666e49994f.png)
+
+## results:
+
+![WhatsApp Image 2022-12-22 at 10 24 04](https://user-images.githubusercontent.com/58916022/209143821-3245d6ae-8b90-4d4b-b2ec-b40a86630df3.jpeg)
+
+![WhatsApp Image 2022-12-22 at 10 24 03](https://user-images.githubusercontent.com/58916022/209143871-2ff81364-dc1f-4054-aa8c-ec96e942f9fe.jpeg)
+
 
 
 
