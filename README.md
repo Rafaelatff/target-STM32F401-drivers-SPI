@@ -60,7 +60,7 @@ We already have add to the stm32f401xx.h file all the addresses for the peripher
 
 In the stm32f401xx.h we need to add the peripheral definitions for SPI (just after the GPIO, RCC, EXTI and SYSCFG peripheral definitions, typecasted to xxx_RegDef_t).
 
-```
+```c
 #define SPI1		((SPI_RegDef_t*)SPI1_BASEADDR)
 #define SPI2		((SPI_RegDef_t*)SPI2_BASEADDR)
 #define SPI3		((SPI_RegDef_t*)SPI3_BASEADDR)
@@ -75,7 +75,7 @@ And we also need to create the SPI_RegDef_t struct. To create this struct we fol
 
 ![image](https://user-images.githubusercontent.com/58916022/208932150-7618f4b4-7af5-40d9-bee6-05d022261ee8.png)
 
-```
+```c
 typedef struct {
 	volatile uint32_t SPI_CR1; // SPI control register 1 - Address offset: 0x00
 	volatile uint32_t SPI_CR2; // SPI control register 2 - Address offset: 0x04
@@ -91,7 +91,7 @@ typedef struct {
 
 Let's them start working on the stm32f401xx_spi_driver.h file by creating the structs for SPI_Config_t and SPI_Handle_t. The code is showed below.
 
-```
+```c
 /*
  * Configuration structure for SPIx peripheral
  */
@@ -116,7 +116,7 @@ typedef struct{
 
 And them we create the SPI prototypes in the .h file.
 
-```
+```c
 /*******************************************************
  * 			API supported by this driver
  * 			
@@ -168,7 +168,7 @@ The macros:
 
 The code (in spi_driver.c), with and without the macros:
 
-```
+```c
 	// 1. Lets configure the SPI_CR1 register
 	uint32_t tempreg = 0;
 
